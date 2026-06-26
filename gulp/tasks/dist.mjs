@@ -39,7 +39,16 @@ task('build:dist:umd', (cb) => {
   )
 })
 
-task('build:dist', parallel('build:dist:commonjs', 'build:dist:es', 'build:dist:umd'))
+task('build:dist:css', (cb) => {
+  sh(
+    `node ${paths.base('scripts/build-scoped-semantic-css.js')} && node ${paths.base(
+      'scripts/verify-scoped-css.js',
+    )}`,
+    cb,
+  )
+})
+
+task('build:dist', parallel('build:dist:commonjs', 'build:dist:es', 'build:dist:umd', 'build:dist:css'))
 
 // ----------------------------------------
 // Default
