@@ -14,6 +14,10 @@ update values of variables or use styles from predefined themes.
 
 In fact, all you know about theming and styling of Semantic UI is fully applicable to Semantic UI React.
 
+If you use scoped CSS in a mixed-style app, custom Semantic UI themes need the same scoping
+transform before they are imported. A global custom theme, `semantic-ui-css/semantic.min.css`, or
+Semantic UI CDN stylesheet will still style matching elements outside `.semantic-scope`.
+
 <Button
   content='Learn more about theming'
   labelPosition='right'
@@ -69,6 +73,9 @@ The key point is that you don't want `eject`, but you want to customize styles ð
 ### Remove existing styles
 
 First of all, please remove existing references for `semantic-ui` & `semantic-ui-css` package or styles included from CDN to avoid styles duplication.
+
+The same rule applies to scoped CSS: do not load global Semantic UI CSS and scoped Semantic UI CSS
+in the same app unless the global leakage is intentional.
 
 ```bash
 npm uninstall semantic-ui semantic-ui-css

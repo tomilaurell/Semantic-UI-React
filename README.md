@@ -69,6 +69,10 @@ This is a listing of example projects and guides that will help you integrate Se
 
 There are several options. Refer to our doc on [CSS Usage][23].
 
+For mixed-style apps, import `semantic-ui-react/dist/css/semantic-ui-scoped.min.css` and wrap
+Semantic UI React content in `.semantic-scope`. Do not load the scoped stylesheet together with the
+global `semantic-ui-css/semantic.min.css` unless global Semantic UI styles are intentional.
+
 </details>
 
 <details>

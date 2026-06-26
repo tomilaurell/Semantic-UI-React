@@ -30,6 +30,37 @@ After install, **import the minified CSS file in your app's entry file:**
 import 'semantic-ui-css/semantic.min.css'
 ```
 
+### Scoped CSS
+
+Apps that render Semantic UI React next to unrelated components can use the scoped CSS artifact
+instead of the global `semantic-ui-css` stylesheet:
+
+```js fitted label=index.js
+import 'semantic-ui-react/dist/css/semantic-ui-scoped.min.css'
+```
+
+Wrap Semantic UI React content in `.semantic-scope`:
+
+```jsx fitted label=App.jsx
+import { Button } from 'semantic-ui-react'
+
+export default function App() {
+  return (
+    <div className='semantic-scope'>
+      <Button primary>Save</Button>
+    </div>
+  )
+}
+```
+
+When scoped CSS is used, components that render through portals, such as `Portal`, `Modal`,
+`Popup`, and page `Dimmer`, mount within the nearest `.semantic-scope` by default. An explicit
+`mountNode` still takes precedence.
+
+Do not import both `semantic-ui-css/semantic.min.css` and
+`semantic-ui-react/dist/css/semantic-ui-scoped.min.css` unless global Semantic UI styles are
+intentional. Loading both stylesheets can reintroduce global style leakage and duplicate rules.
+
 <Message info size='tiny' attached='bottom'>
   <Icon name='idea' />
   Themes from Semantic UI >=2.3.x require Semantic UI React >=0.81.0.
@@ -41,6 +72,9 @@ import 'semantic-ui-css/semantic.min.css'
 </p>
 
 If you are using TypeScript, you don't need to install anything, typings are included with the package.
+
+Semantic UI React supports React 16.8 through React 19. For React 18 and newer, use
+`createRoot` from `react-dom/client` as shown in the examples below.
 
 ### Option 2: CDN (no bundler)
 
