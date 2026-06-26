@@ -1,10 +1,29 @@
 import PropTypes from 'prop-types'
 import * as React from 'react'
 
-import { createShorthandFactory, getUnhandledProps, isBrowser } from '../../lib'
+import {
+  createShorthandFactory,
+  getUnhandledProps,
+  useClassNamesOnNode,
+  useIsomorphicLayoutEffect,
+  useMergedRefs,
+} from '../../lib'
 import Portal from '../../addons/Portal'
 import DimmerDimmable from './DimmerDimmable'
 import DimmerInner from './DimmerInner'
+
+const PageDimmer = React.forwardRef(function (props, ref) {
+  const elementRef = useMergedRefs(ref, React.useRef())
+  const [classNode, setClassNode] = React.useState(null)
+
+  useIsomorphicLayoutEffect(() => {
+    setClassNode(elementRef.current?.parentElement || null)
+  })
+
+  useClassNamesOnNode(classNode, 'dimmed dimmable')
+
+  return <DimmerInner {...props} ref={elementRef} />
+})
 
 /**
  * A dimmer hides distractions to focus attention on particular content.
@@ -14,36 +33,14 @@ const Dimmer = React.forwardRef(function (props, ref) {
   const rest = getUnhandledProps(Dimmer, props)
 
   if (page) {
-    const handlePortalMount = () => {
-      if (!isBrowser()) {
-        return
-      }
-
-      // Heads up, IE doesn't support second argument in add()
-      document.body.classList.add('dimmed')
-      document.body.classList.add('dimmable')
-    }
-
-    const handlePortalUnmount = () => {
-      if (!isBrowser()) {
-        return
-      }
-
-      // Heads up, IE doesn't support second argument in add()
-      document.body.classList.remove('dimmed')
-      document.body.classList.remove('dimmable')
-    }
-
     return (
       <Portal
         closeOnEscape={false}
         closeOnDocumentClick={false}
-        onMount={handlePortalMount}
-        onUnmount={handlePortalUnmount}
         open={active}
         openOnTriggerClick={false}
       >
-        <DimmerInner {...rest} active={active} page={page} ref={ref} />
+        <PageDimmer {...rest} active={active} page={page} ref={ref} />
       </Portal>
     )
   }

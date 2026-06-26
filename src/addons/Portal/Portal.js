@@ -49,11 +49,21 @@ function Portal(props) {
   })
 
   const contentRef = React.useRef()
+  const anchorRef = React.useRef()
+  const [anchorNode, setAnchorNode] = React.useState(null)
   const [triggerRef, trigger] = useTrigger(props.trigger, props.triggerRef)
 
   const mouseEnterTimer = React.useRef()
   const mouseLeaveTimer = React.useRef()
   const latestDocumentMouseDownEvent = React.useRef()
+
+  const setAnchorRef = React.useCallback((node) => {
+    anchorRef.current = node
+
+    if (node) {
+      setAnchorNode(node)
+    }
+  }, [])
 
   // ----------------------------------------
   // Behavior
@@ -270,9 +280,13 @@ function Portal(props) {
 
   return (
     <>
+      {open && !mountNode && !trigger && (
+        <span data-suir-portal-anchor='' ref={setAnchorRef} style={{ display: 'none' }} />
+      )}
       {open && (
         <>
           <PortalInner
+            fallbackNode={trigger ? triggerRef : anchorNode || anchorRef}
             mountNode={mountNode}
             onMount={() => _.invoke(props, 'onMount', null, props)}
             onUnmount={() => _.invoke(props, 'onUnmount', null, props)}

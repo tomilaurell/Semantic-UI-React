@@ -62,6 +62,32 @@ describe('Dimmer', () => {
         classes.contains('dimmable').should.be.false()
         classes.contains('dimmed').should.be.false()
       })
+
+      it('when mounted in semantic scope, dimmer classes are scoped', (done) => {
+        const scope = document.createElement('div')
+        scope.className = 'semantic-scope'
+        document.body.appendChild(scope)
+
+        const dimmer = mount(<Dimmer page active />, { attachTo: scope })
+
+        setTimeout(() => {
+          try {
+            dimmer.find(Portal).should.have.prop('open', true)
+
+            scope.classList.contains('dimmable').should.be.true()
+            scope.classList.contains('dimmed').should.be.true()
+            document.body.classList.contains('dimmable').should.be.false()
+            document.body.classList.contains('dimmed').should.be.false()
+            scope.querySelector('.ui.dimmer').should.not.equal(null)
+            done()
+          } catch (err) {
+            done(err)
+          } finally {
+            dimmer.unmount()
+            document.body.removeChild(scope)
+          }
+        })
+      })
     })
   })
 })

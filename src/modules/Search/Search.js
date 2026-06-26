@@ -16,6 +16,8 @@ import {
   makeDebugger,
   objectDiff,
   partitionHTMLProps,
+  querySemanticScope,
+  setRef,
   SUI,
   getKeyOnly,
   getValueAndKey,
@@ -68,6 +70,8 @@ const Search = React.forwardRef((props, ref) => {
 })
 
 class SearchInner extends Component {
+  elementRef = React.createRef()
+
   static getAutoControlledStateFromProps(props, state) {
     debug('getAutoControlledStateFromProps()')
 
@@ -351,7 +355,7 @@ class SearchInner extends Component {
     debug('scrollSelectedItemIntoView()')
     // Do not access document when server side rendering
     if (!isBrowser()) return
-    const menu = document.querySelector('.ui.search.active.visible .results.visible')
+    const menu = querySemanticScope(this.elementRef, '.results.visible')
     if (!menu) return
     debug(`menu (results): ${menu}`)
     const item = menu.querySelector('.result.active')
@@ -366,6 +370,11 @@ class SearchInner extends Component {
     } else if (isOutOfLowerView) {
       menu.scrollTop = item.offsetTop + item.clientHeight - menu.clientHeight
     }
+  }
+
+  setElementRef = (element) => {
+    this.elementRef.current = element
+    setRef(this.props.innerRef, element)
   }
 
   // Open if the current value is greater than the minCharacters prop
@@ -501,7 +510,7 @@ class SearchInner extends Component {
     debug('state', this.state)
 
     const { searchClasses, focus, open } = this.state
-    const { aligned, category, className, innerRef, fluid, loading, size } = this.props
+    const { aligned, category, className, fluid, loading, size } = this.props
 
     // Classes
     const classes = cx(
@@ -530,7 +539,7 @@ class SearchInner extends Component {
         onBlur={this.handleBlur}
         onFocus={this.handleFocus}
         onMouseDown={this.handleMouseDown}
-        ref={innerRef}
+        ref={this.setElementRef}
       >
         {this.renderSearchInput(htmlInputProps)}
         {this.renderResultsMenu()}

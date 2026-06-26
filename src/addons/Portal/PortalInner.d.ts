@@ -11,6 +11,9 @@ export interface StrictPortalInnerProps {
   /** The node where the portal should mount. */
   mountNode?: any
 
+  /** A fallback node used to find the nearest semantic scope. */
+  fallbackNode?: any
+
   /**
    * Called when the PortalInner is mounted on the DOM.
    *

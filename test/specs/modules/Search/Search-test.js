@@ -227,6 +227,34 @@ describe('Search', () => {
         'When the first item in the list was selected, SearchResults did not scroll to top.',
       )
     })
+    it('scrolls the selected item inside its own search root', () => {
+      const outsideSearch = document.createElement('div')
+      const opts = getOptions(20)
+
+      outsideSearch.className = 'ui search active visible'
+      outsideSearch.innerHTML =
+        '<div class="results visible"><div class="result active">outside</div></div>'
+      document.body.appendChild(outsideSearch)
+
+      try {
+        wrapperMount(<Search results={opts} minCharacters={0} selectFirstResult />)
+
+        openSearchResults()
+        searchResultsIsOpen()
+
+        const ownMenu = wrapper.getDOMNode().querySelector('.results.visible')
+        const outsideMenu = outsideSearch.querySelector('.results.visible')
+        const ownMenuQuerySelector = sandbox.spy(ownMenu, 'querySelector')
+        const outsideMenuQuerySelector = sandbox.spy(outsideMenu, 'querySelector')
+
+        wrapper.find('SearchInner').instance().scrollSelectedItemIntoView()
+
+        ownMenuQuerySelector.should.have.been.calledWith('.result.active')
+        outsideMenuQuerySelector.should.not.have.been.called()
+      } finally {
+        document.body.removeChild(outsideSearch)
+      }
+    })
     it('closes the menu', () => {
       wrapperMount(<Search results={options} minCharacters={0} selectFirstResult />)
 

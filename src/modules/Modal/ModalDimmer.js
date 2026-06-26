@@ -10,6 +10,7 @@ import {
   getUnhandledProps,
   useClassNamesOnNode,
   getKeyOnly,
+  useIsomorphicLayoutEffect,
   useMergedRefs,
 } from '../../lib'
 
@@ -19,6 +20,7 @@ import {
 const ModalDimmer = React.forwardRef(function (props, ref) {
   const { blurring, children, className, centered, content, inverted, mountNode, scrolling } = props
   const elementRef = useMergedRefs(ref, React.useRef())
+  const [classNode, setClassNode] = React.useState(mountNode)
 
   const classes = cx(
     'ui',
@@ -36,7 +38,11 @@ const ModalDimmer = React.forwardRef(function (props, ref) {
   const rest = getUnhandledProps(ModalDimmer, props)
   const ElementType = getComponentType(props)
 
-  useClassNamesOnNode(mountNode, bodyClasses)
+  useIsomorphicLayoutEffect(() => {
+    setClassNode(mountNode || elementRef.current?.parentElement || null)
+  })
+
+  useClassNamesOnNode(classNode, bodyClasses)
 
   React.useEffect(() => {
     elementRef.current?.style?.setProperty('display', 'flex', 'important')

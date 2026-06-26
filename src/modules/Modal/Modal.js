@@ -51,8 +51,7 @@ const Modal = React.forwardRef(function (props, ref) {
     style,
     trigger,
   } = props
-  // Do not access document when server side rendering
-  const mountNode = isBrowser() ? props.mountNode || document.body : null
+  const { mountNode } = props
 
   const [open, setOpen] = useAutoControlledValue({
     state: props.open,

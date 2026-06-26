@@ -3,7 +3,13 @@ import PropTypes from 'prop-types'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 
-import { isBrowser, makeDebugger, useEventCallback } from '../../lib'
+import {
+  isBrowser,
+  makeDebugger,
+  resolveSemanticMountNode,
+  useEventCallback,
+  useForceUpdate,
+} from '../../lib'
 import usePortalElement from './usePortalElement'
 
 const debug = makeDebugger('PortalInner')
@@ -14,8 +20,15 @@ const debug = makeDebugger('PortalInner')
 const PortalInner = React.forwardRef(function (props, ref) {
   const handleMount = useEventCallback(() => _.invoke(props, 'onMount', null, props))
   const handleUnmount = useEventCallback(() => _.invoke(props, 'onUnmount', null, props))
+  const forceUpdate = useForceUpdate()
 
   const element = usePortalElement(props.children, ref)
+
+  React.useEffect(() => {
+    if (!props.mountNode && props.fallbackNode) {
+      forceUpdate()
+    }
+  }, [forceUpdate, props.fallbackNode, props.mountNode])
 
   React.useEffect(() => {
     debug('componentDidMount()')
@@ -31,7 +44,7 @@ const PortalInner = React.forwardRef(function (props, ref) {
     return null
   }
 
-  return createPortal(element, props.mountNode || document.body)
+  return createPortal(element, resolveSemanticMountNode(props.mountNode, props.fallbackNode))
 })
 
 PortalInner.displayName = 'PortalInner'
@@ -41,6 +54,9 @@ PortalInner.propTypes = {
 
   /** The node where the portal should mount. */
   mountNode: PropTypes.any,
+
+  /** A fallback node used to find the nearest semantic scope. */
+  fallbackNode: PropTypes.any,
 
   /**
    * Called when the portal is mounted on the DOM

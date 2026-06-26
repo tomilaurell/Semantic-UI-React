@@ -44,6 +44,7 @@ describe('Modal', () => {
 
     if (dimmer) dimmer.parentNode.removeChild(dimmer)
     if (modal) modal.parentNode.removeChild(modal)
+    document.body.classList.remove('dimmable', 'dimmed', 'blurring', 'scrolling')
   })
 
   common.isConformant(Modal, { rendersPortal: true })
@@ -453,6 +454,31 @@ describe('Modal', () => {
         </Modal>,
       )
       assertNodeContains(mountNode, '.ui.modal')
+    })
+
+    it('renders modal and dimmer classes inside nearest semantic scope by default', (done) => {
+      const scope = document.createElement('div')
+      scope.className = 'semantic-scope'
+      document.body.appendChild(scope)
+
+      wrapperMount(<Modal open>foo</Modal>, { attachTo: scope })
+
+      setTimeout(() => {
+        try {
+          assertNodeContains(scope, '.ui.modal')
+          assertNodeContains(scope, '.ui.dimmer')
+          scope.classList.contains('dimmable').should.be.true()
+          scope.classList.contains('dimmed').should.be.true()
+          document.body.classList.contains('dimmable').should.be.false()
+          document.body.classList.contains('dimmed').should.be.false()
+          done()
+        } catch (err) {
+          done(err)
+        } finally {
+          wrapper.unmount()
+          document.body.removeChild(scope)
+        }
+      })
     })
   })
 

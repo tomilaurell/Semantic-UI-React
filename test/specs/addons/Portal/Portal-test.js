@@ -276,6 +276,57 @@ describe('Portal', () => {
 
       wrapper.find(PortalInner).should.have.prop('mountNode', mountNode)
     })
+
+    it('mounts inside the nearest semantic scope from trigger by default', () => {
+      const scope = document.createElement('div')
+      scope.className = 'semantic-scope'
+      document.body.appendChild(scope)
+
+      wrapperMount(
+        <Portal trigger={<button>Open</button>}>
+          <p id='portal-content' />
+        </Portal>,
+        { attachTo: scope },
+      )
+
+      wrapper.find('button').simulate('click')
+
+      const content = scope.querySelector('#portal-content')
+
+      content.should.not.equal(null)
+      content.parentNode.should.equal(scope)
+
+      wrapper.unmount()
+      document.body.removeChild(scope)
+    })
+
+    it('mounts inside the nearest semantic scope from an anchor when trigger is absent', (done) => {
+      const scope = document.createElement('div')
+      scope.className = 'semantic-scope'
+      document.body.appendChild(scope)
+
+      wrapperMount(
+        <Portal open>
+          <p id='anchored-portal-content' />
+        </Portal>,
+        { attachTo: scope },
+      )
+
+      setTimeout(() => {
+        try {
+          const content = scope.querySelector('#anchored-portal-content')
+
+          content.should.not.equal(null)
+          content.parentNode.should.equal(scope)
+          done()
+        } catch (err) {
+          done(err)
+        } finally {
+          wrapper.unmount()
+          document.body.removeChild(scope)
+        }
+      })
+    })
   })
 
   describe('openOnTriggerClick', () => {
