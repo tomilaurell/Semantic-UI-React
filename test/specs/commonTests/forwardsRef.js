@@ -1,6 +1,6 @@
 import * as React from 'react'
-import * as ReactIs from 'react-is'
 
+import { isForwardRef } from 'src/lib/reactIs'
 import { consoleUtil, sandbox } from 'test/utils'
 
 /**
@@ -14,7 +14,7 @@ export default function forwardsRef(Component, options = {}) {
     const RootComponent = isMemoized ? Component.type : Component
 
     it('is produced by React.forwardRef() call', () => {
-      expect(ReactIs.isForwardRef(<RootComponent {...requiredProps} />)).to.equal(true)
+      expect(isForwardRef(<RootComponent {...requiredProps} />)).to.equal(true)
     })
 
     it('a render function is anonymous', () => {

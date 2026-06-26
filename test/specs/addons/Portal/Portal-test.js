@@ -1,10 +1,9 @@
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { act } from 'react-dom/test-utils'
 
 import * as common from 'test/specs/commonTests'
-import { domEvent, sandbox } from 'test/utils'
+import { act, domEvent, sandbox } from 'test/utils'
 import Portal from 'src/addons/Portal/Portal'
 import PortalInner from 'src/addons/Portal/PortalInner'
 import wait from 'test/utils/wait'

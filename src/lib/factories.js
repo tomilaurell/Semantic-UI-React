@@ -1,7 +1,8 @@
 import cx from 'clsx'
 import _ from 'lodash'
 import * as React from 'react'
-import * as ReactIs from 'react-is'
+
+import { isValidElementType } from './reactIs'
 
 const DEPRECATED_CALLS = {}
 
@@ -22,7 +23,7 @@ const DEPRECATED_CALLS = {}
  * @returns {object|null}
  */
 export function createShorthand(Component, mapValueToProps, val, options = {}) {
-  if (!ReactIs.isValidElementType(Component)) {
+  if (!isValidElementType(Component)) {
     throw new Error('createShorthand(): Component should be a valid element type.')
   }
 
@@ -158,7 +159,7 @@ export function createShorthand(Component, mapValueToProps, val, options = {}) {
  * @returns {function} A shorthand factory function waiting for `val` and `defaultProps`.
  */
 export function createShorthandFactory(Component, mapValueToProps) {
-  if (!ReactIs.isValidElementType(Component)) {
+  if (!isValidElementType(Component)) {
     throw new Error('createShorthandFactory(): Component should be a valid element type.')
   }
 

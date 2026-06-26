@@ -1,7 +1,6 @@
 import * as React from 'react'
-import ReactIs from 'react-is'
 
-import { useMergedRefs } from '../../lib'
+import { getElementRef, isForwardRef, useMergedRefs } from '../../lib'
 
 /**
  * Assigns merged ref to an existing element is possible or wraps it with an additional "div".
@@ -10,10 +9,10 @@ import { useMergedRefs } from '../../lib'
  * @param {React.Ref} userRef
  */
 export default function usePortalElement(node, userRef) {
-  const ref = useMergedRefs(node.ref, userRef)
+  const ref = useMergedRefs(getElementRef(node), userRef)
 
   if (React.isValidElement(node)) {
-    if (ReactIs.isForwardRef(node)) {
+    if (isForwardRef(node)) {
       return React.cloneElement(node, { ref })
     }
 

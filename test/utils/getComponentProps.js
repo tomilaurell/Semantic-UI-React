@@ -1,4 +1,4 @@
-import * as ReactIs from 'react-is'
+import { Memo } from 'src/lib/reactIs'
 
 /**
  * Gets proper props for a component.
@@ -7,7 +7,7 @@ import * as ReactIs from 'react-is'
  * @return {Object}
  */
 export default function getComponentProps(Component) {
-  if (Component.$$typeof === ReactIs.Memo) {
+  if (Component.$$typeof === Memo) {
     return getComponentProps(Component.type)
   }
 

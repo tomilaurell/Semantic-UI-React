@@ -1,10 +1,9 @@
 import React from 'react'
-import { act } from 'react-dom/test-utils'
 
 import PortalInner from 'src/addons/Portal/PortalInner'
 import { isBrowser } from 'src/lib'
 import * as common from 'test/specs/commonTests'
-import { sandbox } from 'test/utils'
+import { act, sandbox } from 'test/utils'
 
 describe('PortalInner', () => {
   common.isConformant(PortalInner, {

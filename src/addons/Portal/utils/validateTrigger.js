@@ -1,5 +1,6 @@
 import * as React from 'react'
-import * as ReactIs from 'react-is'
+
+import { isFragment } from '../../../lib'
 
 /**
  * Asserts that a passed element can be used cloned a props will be applied properly.
@@ -7,7 +8,7 @@ import * as ReactIs from 'react-is'
 export default function validateTrigger(element) {
   React.Children.only(element)
 
-  if (ReactIs.isFragment(element)) {
+  if (isFragment(element)) {
     throw new Error('An "React.Fragment" cannot be used as a `trigger`.')
   }
 }

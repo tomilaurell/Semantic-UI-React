@@ -1,6 +1,6 @@
 import React from 'react'
-import { act } from 'react-dom/test-utils'
 
+import { act } from 'test/utils'
 import useClassNamesOnNode from 'src/lib/hooks/useClassNamesOnNode'
 
 function TestComponent(props) {

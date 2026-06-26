@@ -1,4 +1,4 @@
-import * as ReactIs from 'react-is'
+import { ForwardRef, Memo } from 'src/lib/reactIs'
 
 /**
  * Gets a proper `displayName` for a component.
@@ -7,11 +7,11 @@ import * as ReactIs from 'react-is'
  * @return {String}
  */
 export default function getComponentName(Component) {
-  if (Component.$$typeof === ReactIs.Memo) {
+  if (Component.$$typeof === Memo) {
     return getComponentName(Component.type)
   }
 
-  if (Component.$$typeof === ReactIs.ForwardRef) {
+  if (Component.$$typeof === ForwardRef) {
     return Component.displayName
   }
 

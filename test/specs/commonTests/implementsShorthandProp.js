@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
-import ReactIs from 'react-is'
 
 import { createShorthand } from 'src/lib'
+import { Memo } from 'src/lib/reactIs'
 import { consoleUtil, getComponentName } from 'test/utils'
 import { noDefaultClassNameFromProp } from './classNameHelpers'
 import helpers from './commonHelpers'
@@ -55,7 +55,7 @@ export default (Component, options = {}) => {
   // Enzyme does handle properly React.memo() in find and always returns inner component
   // That's why we should unwrap it, otherwise "wrapper.find(Component)" is not equal to "Component" 💥
   const ShorthandComponent =
-    options.ShorthandComponent.$$typeof === ReactIs.Memo
+    options.ShorthandComponent.$$typeof === Memo
       ? options.ShorthandComponent.type
       : options.ShorthandComponent
 

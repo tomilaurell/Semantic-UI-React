@@ -1,11 +1,11 @@
 import faker from 'faker'
 import _ from 'lodash'
 import React from 'react'
-import ReactIs from 'react-is'
 import ReactDOMServer from 'react-dom/server'
 import * as semanticUIReact from 'semantic-ui-react'
 
 import { componentInfoContext } from 'docs/src/utils'
+import { isValidElementType } from 'src/lib/reactIs'
 import {
   assertBodyContains,
   consoleUtil,
@@ -40,7 +40,7 @@ export default function isConformant(Component, options = {}) {
   const constructorName = getComponentName(Component)
 
   it('a valid component should be exported', () => {
-    expect(ReactIs.isValidElementType(Component)).to.equal(
+    expect(isValidElementType(Component)).to.equal(
       true,
       `Components should export a class or function, got: ${typeof Component}.`,
     )
@@ -74,7 +74,7 @@ export default function isConformant(Component, options = {}) {
   const isTopLevelAPIProp = _.has(semanticUIReact, constructorName)
 
   // find the apiPath in the semanticUIReact object
-  const foundAsSubcomponent = ReactIs.isValidElementType(_.get(semanticUIReact, info.apiPath))
+  const foundAsSubcomponent = isValidElementType(_.get(semanticUIReact, info.apiPath))
 
   // require all components to be exported at the top level
   it('is exported at the top level', () => {

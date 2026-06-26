@@ -1,4 +1,5 @@
 export * from './assertNodeContains'
+export { act } from './act'
 export assertWithTimeout from './assertWithTimeout'
 export consoleUtil from './consoleUtil'
 export domEvent from './domEvent'
