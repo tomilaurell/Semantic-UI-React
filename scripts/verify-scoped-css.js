@@ -9,6 +9,16 @@ const rootDir = path.resolve(__dirname, '..')
 const cssPath = path.join(rootDir, 'dist/css/semantic-ui-scoped.css')
 const scopeClassName = 'semantic-scope'
 const forbiddenRootTags = new Set(['html', 'body'])
+const forbiddenGlobalFontFamilies = [
+  'Icons',
+  'outline-icons',
+  'brand-icons',
+  'Step',
+  'Accordion',
+  'Checkbox',
+  'Dropdown',
+  'Rating',
+]
 
 function isKeyframesRule(rule) {
   let parent = rule.parent
@@ -74,15 +84,37 @@ function verifySelector(selectorText, failures) {
   }).processSync(selectorText)
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function containsFontFamilyName(value, fontFamily) {
+  const escapedFontFamily = escapeRegExp(fontFamily)
+
+  return new RegExp(`(^|[\\s,'"])${escapedFontFamily}($|[\\s,'"])`).test(value)
+}
+
 function verify() {
   const css = fs.readFileSync(cssPath, 'utf8')
   const root = postcss.parse(css, { from: cssPath })
   const failures = []
 
+  root.walkAtRules('import', (atRule) => {
+    failures.push(`Global @import is not scoped: @import ${atRule.params}`)
+  })
+
   root.walkRules((rule) => {
     if (!isKeyframesRule(rule)) {
       verifySelector(rule.selector, failures)
     }
+  })
+
+  root.walkDecls(/font-family/i, (declaration) => {
+    forbiddenGlobalFontFamilies.forEach((fontFamily) => {
+      if (containsFontFamilyName(declaration.value, fontFamily)) {
+        failures.push(`Unscoped Semantic font family "${fontFamily}" in: ${declaration.toString()}`)
+      }
+    })
   })
 
   if (failures.length > 0) {

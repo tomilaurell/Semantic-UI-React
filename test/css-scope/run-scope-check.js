@@ -169,7 +169,7 @@ function verifyInsideStyles(inside) {
     failures.push(`inside input did not receive Semantic box sizing: ${inside.input.boxSizing}`)
   }
 
-  if (!inside.icon.fontFamily.toLowerCase().includes('icons')) {
+  if (!inside.icon.fontFamily.toLowerCase().includes('semanticscopeicons')) {
     failures.push(`inside icon did not receive Semantic icon font: ${inside.icon.fontFamily}`)
   }
 

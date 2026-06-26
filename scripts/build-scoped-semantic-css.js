@@ -14,6 +14,16 @@ const outputCssPath = path.join(outputDir, 'semantic-ui-scoped.css')
 const outputMinCssPath = path.join(outputDir, 'semantic-ui-scoped.min.css')
 const outputFontDir = path.join(outputDir, 'themes/default/assets/fonts')
 const scopeClassName = 'semantic-scope'
+const scopedFontFamilies = new Map([
+  ['Icons', 'SemanticScopeIcons'],
+  ['outline-icons', 'SemanticScopeOutlineIcons'],
+  ['brand-icons', 'SemanticScopeBrandIcons'],
+  ['Step', 'SemanticScopeStep'],
+  ['Accordion', 'SemanticScopeAccordion'],
+  ['Checkbox', 'SemanticScopeCheckbox'],
+  ['Dropdown', 'SemanticScopeDropdown'],
+  ['Rating', 'SemanticScopeRating'],
+])
 
 function isKeyframesRule(rule) {
   let parent = rule.parent
@@ -104,6 +114,33 @@ function scopeSelectors(selector) {
   }).processSync(selector)
 }
 
+function removeGlobalImports(root) {
+  root.walkAtRules('import', (atRule) => {
+    atRule.remove()
+  })
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function replaceFontFamilyName(value, fontFamily, scopedFontFamily) {
+  const escapedFontFamily = escapeRegExp(fontFamily)
+
+  return value
+    .replace(new RegExp(`'${escapedFontFamily}'`, 'g'), `'${scopedFontFamily}'`)
+    .replace(new RegExp(`"${escapedFontFamily}"`, 'g'), `"${scopedFontFamily}"`)
+    .replace(new RegExp(`(^|[\\s,])${escapedFontFamily}($|[\\s,])`, 'g'), `$1${scopedFontFamily}$2`)
+}
+
+function scopeFontFamilies(root) {
+  root.walkDecls(/font-family/i, (declaration) => {
+    scopedFontFamilies.forEach((scopedFontFamily, fontFamily) => {
+      declaration.value = replaceFontFamilyName(declaration.value, fontFamily, scopedFontFamily)
+    })
+  })
+}
+
 function copyDirectory(source, destination) {
   if (!fs.existsSync(source)) {
     return
@@ -128,6 +165,8 @@ function build() {
   const sourceCss = fs.readFileSync(sourceCssPath, 'utf8')
   const root = postcss.parse(sourceCss, { from: sourceCssPath })
 
+  removeGlobalImports(root)
+
   root.walkRules((rule) => {
     if (isKeyframesRule(rule)) {
       return
@@ -135,6 +174,8 @@ function build() {
 
     rule.selector = scopeSelectors(rule.selector)
   })
+
+  scopeFontFamilies(root)
 
   const css = root.toResult({ to: outputCssPath }).css
   const minified = new CleanCSS({ level: 2 }).minify(css)
