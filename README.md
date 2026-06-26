@@ -29,6 +29,43 @@
   </a>
 </p>
 
+## Fork Notice
+
+This `tomilaurell` fork is a compatibility fork of
+[`Semantic-Org/Semantic-UI-React`](https://github.com/Semantic-Org/Semantic-UI-React). It is not
+intended to be a generally maintained fork of Semantic UI React.
+
+The purpose of this fork is limited to:
+
+- React 19 compatibility while keeping React as a peer dependency.
+- Scoped Semantic UI CSS so Semantic styles do not leak into unrelated components in the same app.
+
+Main changes in this fork:
+
+- React and React DOM peer dependency ranges include React 19.
+- Runtime React 19 warning sources such as direct `element.ref` reads are avoided.
+- Public render examples and UMD smoke tests use modern root rendering.
+- A generated scoped CSS artifact is available at
+  `semantic-ui-react/dist/css/semantic-ui-scoped.min.css`.
+- Semantic UI React content can be isolated by wrapping it in `.semantic-scope`.
+- Portal-based components, including Modal, Popup through Portal, and page Dimmer behavior, resolve
+  to the nearest `.semantic-scope` by default unless an explicit `mountNode` is provided.
+
+Use the scoped stylesheet instead of global Semantic UI CSS in mixed-style apps:
+
+```js
+import 'semantic-ui-react/dist/css/semantic-ui-scoped.min.css'
+```
+
+```jsx
+<div className="semantic-scope">
+  <AppUsingSemanticUIReact />
+</div>
+```
+
+Do not import `semantic-ui-css/semantic.min.css` together with the scoped stylesheet unless global
+Semantic UI styles are intentional.
+
 ## Installation & Usage
 
 See the [**Documentation**][2] for an introduction, usage information, and examples.
