@@ -7,7 +7,7 @@ import createPackageJson from './createPackageJson'
 import enhanceExampleCode from './enhanceExampleCode'
 
 const appTemplate = `import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { Container, Header, List } from "semantic-ui-react";
 
 import pkg from 'semantic-ui-react/package.json'
@@ -41,11 +41,10 @@ styleLink.rel = "stylesheet";
 styleLink.href = "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css";
 document.head.appendChild(styleLink);
 
-ReactDOM.render(
+createRoot(document.getElementById("root")).render(
   <App>
     <Example />
-  </App>,
-  document.getElementById("root")
+  </App>
 );
 `
 
