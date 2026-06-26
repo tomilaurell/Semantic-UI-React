@@ -27,7 +27,7 @@ const assertInnerHtml = async () => {
   const server = http
     .createServer((req, response) => {
       if (req.url === '/umd.js') {
-        fs.readFile(config.paths.dist('umd', 'semantic-ui-react.min.js'), (err, data) => {
+        fs.readFile(config.paths.dist('umd', 'semantic-ui-react-19.min.js'), (err, data) => {
           response.setHeader('Content-type', 'text/javascript')
           response.end(data)
         })

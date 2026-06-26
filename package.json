@@ -1,12 +1,12 @@
 {
   "name": "semantic-ui-react-19",
-  "version": "3.0.0-react19-alpha.0",
+  "version": "3.0.0-react19-alpha.1",
   "description": "Semantic UI React compatibility fork for React 19 and scoped CSS.",
   "jsnext:main": "dist/es/index.js",
   "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
   "types": "index.d.ts",
-  "unpkg": "dist/umd/semantic-ui-react.min.js",
+  "unpkg": "dist/umd/semantic-ui-react-19.min.js",
   "files": [
     "src",
     "dist",

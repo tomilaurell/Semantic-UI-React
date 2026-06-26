@@ -8,11 +8,11 @@ const selectorParser = require('postcss-selector-parser')
 
 const rootDir = path.resolve(__dirname, '..')
 const sourceCssPath = path.join(rootDir, 'node_modules/semantic-ui-css/semantic.css')
-const sourceFontDir = path.join(rootDir, 'node_modules/semantic-ui-css/themes/default/assets/fonts')
+const sourceAssetsDir = path.join(rootDir, 'node_modules/semantic-ui-css/themes/default/assets')
 const outputDir = path.join(rootDir, 'dist/css')
 const outputCssPath = path.join(outputDir, 'semantic-ui-scoped.css')
 const outputMinCssPath = path.join(outputDir, 'semantic-ui-scoped.min.css')
-const outputFontDir = path.join(outputDir, 'themes/default/assets/fonts')
+const outputAssetsDir = path.join(outputDir, 'themes/default/assets')
 const scopeClassName = 'semantic-scope'
 const scopedFontFamilies = new Map([
   ['Icons', 'SemanticScopeIcons'],
@@ -187,7 +187,7 @@ function build() {
   fs.mkdirSync(outputDir, { recursive: true })
   fs.writeFileSync(outputCssPath, css)
   fs.writeFileSync(outputMinCssPath, minified.styles)
-  copyDirectory(sourceFontDir, outputFontDir)
+  copyDirectory(sourceAssetsDir, outputAssetsDir)
 
   console.log(`Generated ${path.relative(rootDir, outputCssPath)}`)
   console.log(`Generated ${path.relative(rootDir, outputMinCssPath)}`)

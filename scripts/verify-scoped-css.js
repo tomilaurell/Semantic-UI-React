@@ -7,6 +7,7 @@ const selectorParser = require('postcss-selector-parser')
 
 const rootDir = path.resolve(__dirname, '..')
 const cssPath = path.join(rootDir, 'dist/css/semantic-ui-scoped.css')
+const cssDir = path.dirname(cssPath)
 const scopeClassName = 'semantic-scope'
 const forbiddenRootTags = new Set(['html', 'body'])
 const forbiddenGlobalFontFamilies = [
@@ -94,6 +95,28 @@ function containsFontFamilyName(value, fontFamily) {
   return new RegExp(`(^|[\\s,'"])${escapedFontFamily}($|[\\s,'"])`).test(value)
 }
 
+function getLocalAssetPaths(value) {
+  const assetPaths = []
+  const urlPattern = /url\(([^)]+)\)/g
+  let match = urlPattern.exec(value)
+
+  while (match) {
+    const url = match[1].trim().replace(/^['"]|['"]$/g, '')
+
+    if (!/^(data:|https?:|\/\/)/i.test(url)) {
+      const pathname = url.split(/[?#]/)[0]
+
+      if (pathname) {
+        assetPaths.push(path.resolve(cssDir, pathname))
+      }
+    }
+
+    match = urlPattern.exec(value)
+  }
+
+  return assetPaths
+}
+
 function verify() {
   const css = fs.readFileSync(cssPath, 'utf8')
   const root = postcss.parse(css, { from: cssPath })
@@ -113,6 +136,25 @@ function verify() {
     forbiddenGlobalFontFamilies.forEach((fontFamily) => {
       if (containsFontFamilyName(declaration.value, fontFamily)) {
         failures.push(`Unscoped Semantic font family "${fontFamily}" in: ${declaration.toString()}`)
+      }
+    })
+  })
+
+  root.walkDecls((declaration) => {
+    if (!declaration.value.includes('url(')) {
+      return
+    }
+
+    const assetPaths = getLocalAssetPaths(declaration.value)
+
+    assetPaths.forEach((assetPath) => {
+      if (!fs.existsSync(assetPath)) {
+        failures.push(
+          `Missing local CSS asset ${path.relative(
+            rootDir,
+            assetPath,
+          )} in: ${declaration.toString()}`,
+        )
       }
     })
   })
