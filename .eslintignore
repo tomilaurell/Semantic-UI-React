@@ -2,4 +2,7 @@ bundle-size/dist/*
 coverage/*
 dist/*
 docs/dist/*
+test/react-19-smoke/.packed/*
+test/react-19-smoke/dist/*
+test/react-19-smoke/node_modules/*
 tmp/*

@@ -35,6 +35,7 @@
     "satisfied": "satisfied --ignore \"webpack|react|react-dom\" --skip-invalid",
     "pretest": "yarn satisfied && gulp build:docs:docgen",
     "test": "cross-env NODE_ENV=test node -r @babel/register ./node_modules/karma/bin/karma start karma.conf.babel.js",
+    "test:react19-smoke": "yarn build:dist && node test/react-19-smoke/run.cjs",
     "test:watch": "yarn test --no-single-run",
     "test:umd": "gulp build:dist:umd && node test/umd.js",
     "tsd:test": "gulp build:dist:commonjs:tsd && tsc -p ./ --noEmit"

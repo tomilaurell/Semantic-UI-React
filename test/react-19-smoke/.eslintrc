@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "no-console": "off",
+    "react/jsx-filename-extension": [
+      "error",
+      {
+        "extensions": [".js", ".jsx"]
+      }
+    ]
+  }
+}
