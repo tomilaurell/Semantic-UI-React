@@ -42,19 +42,36 @@ The purpose of this fork is limited to:
 
 Main changes in this fork:
 
+- Published as `@tomilaurell/semantic-ui-react` with alpha releases for implementation testing.
 - React and React DOM peer dependency ranges include React 19.
 - Runtime React 19 warning sources such as direct `element.ref` reads are avoided.
 - Public render examples and UMD smoke tests use modern root rendering.
 - A generated scoped CSS artifact is available at
-  `semantic-ui-react/dist/css/semantic-ui-scoped.min.css`.
+  `@tomilaurell/semantic-ui-react/dist/css/semantic-ui-scoped.min.css`.
 - Semantic UI React content can be isolated by wrapping it in `.semantic-scope`.
 - Portal-based components, including Modal, Popup through Portal, and page Dimmer behavior, resolve
   to the nearest `.semantic-scope` by default unless an explicit `mountNode` is provided.
 
+Install the scoped package directly:
+
+```bash
+npm install @tomilaurell/semantic-ui-react@alpha
+```
+
+```js
+import { Button } from '@tomilaurell/semantic-ui-react'
+```
+
+Or alias it to keep existing `semantic-ui-react` imports in an app:
+
+```bash
+npm install semantic-ui-react@npm:@tomilaurell/semantic-ui-react@alpha
+```
+
 Use the scoped stylesheet instead of global Semantic UI CSS in mixed-style apps:
 
 ```js
-import 'semantic-ui-react/dist/css/semantic-ui-scoped.min.css'
+import '@tomilaurell/semantic-ui-react/dist/css/semantic-ui-scoped.min.css'
 ```
 
 ```jsx

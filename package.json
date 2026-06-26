@@ -1,7 +1,7 @@
 {
-  "name": "semantic-ui-react",
-  "version": "3.0.0-beta.2",
-  "description": "The official Semantic-UI-React integration.",
+  "name": "@tomilaurell/semantic-ui-react",
+  "version": "3.0.0-react19-alpha.0",
+  "description": "Semantic UI React compatibility fork for React 19 and scoped CSS.",
   "jsnext:main": "dist/es/index.js",
   "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
@@ -59,14 +59,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://github.com/Semantic-Org/Semantic-UI-React.git"
+    "url": "git+ssh://github.com/tomilaurell/Semantic-UI-React.git"
   },
   "author": "Levi Thomason <me@levithomason.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Semantic-Org/Semantic-UI-React/issues"
+    "url": "https://github.com/tomilaurell/Semantic-UI-React/issues"
   },
-  "homepage": "https://github.com/Semantic-Org/Semantic-UI-React#readme",
+  "homepage": "https://github.com/tomilaurell/Semantic-UI-React#readme",
   "dependencies": {
     "@babel/runtime": "^7.23.7",
     "@fluentui/react-component-event-listener": "~0.63.0",
