@@ -23,6 +23,9 @@ export interface StrictModalContentProps {
 
   /** A modal can use the entire size of the screen. */
   scrolling?: boolean
+
+  /** Custom styles. */
+  style?: React.CSSProperties
 }
 
 declare const ModalContent: ForwardRefComponent<ModalContentProps, HTMLDivElement>

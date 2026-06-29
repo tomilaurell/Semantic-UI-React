@@ -44,6 +44,7 @@ describe('Modal', () => {
 
     if (dimmer) dimmer.parentNode.removeChild(dimmer)
     if (modal) modal.parentNode.removeChild(modal)
+    document.body.style.overflow = ''
     document.body.classList.remove('dimmable', 'dimmed', 'blurring', 'scrolling')
   })
 
@@ -218,6 +219,72 @@ describe('Modal', () => {
 
       assertBodyContains('.ui.modal', false)
       assertBodyContains('.ui.dimmer', false)
+    })
+
+    it('locks body scrolling while open and restores the previous value when closed', (done) => {
+      document.body.style.overflow = 'scroll'
+      wrapperMount(<Modal open />)
+
+      assertWithTimeout(
+        () => {
+          document.body.style.overflow.should.equal('hidden')
+        },
+        (err) => {
+          if (err) {
+            done(err)
+            return
+          }
+
+          wrapper.setProps({ open: false })
+
+          assertWithTimeout(() => {
+            document.body.style.overflow.should.equal('scroll')
+          }, done)
+        },
+      )
+    })
+
+    it('keeps body scrolling locked until every open modal is closed', (done) => {
+      const Modals = ({ firstOpen, secondOpen }) => (
+        <>
+          <Modal open={firstOpen} />
+          <Modal open={secondOpen} />
+        </>
+      )
+
+      wrapperMount(<Modals firstOpen secondOpen />)
+
+      assertWithTimeout(
+        () => {
+          document.body.style.overflow.should.equal('hidden')
+        },
+        (err) => {
+          if (err) {
+            done(err)
+            return
+          }
+
+          wrapper.setProps({ firstOpen: false })
+
+          assertWithTimeout(
+            () => {
+              document.body.style.overflow.should.equal('hidden')
+            },
+            (innerErr) => {
+              if (innerErr) {
+                done(innerErr)
+                return
+              }
+
+              wrapper.setProps({ secondOpen: false })
+
+              assertWithTimeout(() => {
+                document.body.style.overflow.should.equal('')
+              }, done)
+            },
+          )
+        },
+      )
     })
   })
 
@@ -585,6 +652,129 @@ describe('Modal', () => {
             wrapper.update()
             wrapper.find('ModalDimmer').should.have.prop('scrolling', false)
           }, done),
+      )
+    })
+
+    it('makes direct Modal.Content children scrolling when taller than the window', (done) => {
+      window.innerHeight = 10
+
+      wrapperMount(
+        <Modal open>
+          <Modal.Content>foo</Modal.Content>
+        </Modal>,
+      )
+
+      assertWithTimeout(() => {
+        document
+          .querySelector('.ui.modal .content')
+          .classList.contains('scrolling')
+          .should.be.true()
+      }, done)
+    })
+
+    it('keeps Modal.Content scrolling stable after content height caps the modal', (done) => {
+      window.innerHeight = 768
+
+      const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect
+      const scrollHeightDescriptor = Object.getOwnPropertyDescriptor(
+        Element.prototype,
+        'scrollHeight',
+      )
+      const clientHeightDescriptor = Object.getOwnPropertyDescriptor(
+        Element.prototype,
+        'clientHeight',
+      )
+
+      const readDescriptor = (descriptor, node) => {
+        if (!descriptor) return 0
+        if (descriptor.get) return descriptor.get.call(node)
+
+        return descriptor.value
+      }
+      const restore = () => {
+        Element.prototype.getBoundingClientRect = originalGetBoundingClientRect
+
+        if (scrollHeightDescriptor) {
+          Object.defineProperty(Element.prototype, 'scrollHeight', scrollHeightDescriptor)
+        } else {
+          delete Element.prototype.scrollHeight
+        }
+
+        if (clientHeightDescriptor) {
+          Object.defineProperty(Element.prototype, 'clientHeight', clientHeightDescriptor)
+        } else {
+          delete Element.prototype.clientHeight
+        }
+      }
+
+      Element.prototype.getBoundingClientRect = function () {
+        if (this.classList.contains('ui') && this.classList.contains('modal')) {
+          const content = this.querySelector('.content')
+          const height = content && content.classList.contains('scrolling') ? 600 : 900
+
+          return { bottom: height, height, left: 0, right: 900, top: 0, width: 900 }
+        }
+
+        return originalGetBoundingClientRect.call(this)
+      }
+      Object.defineProperty(Element.prototype, 'scrollHeight', {
+        configurable: true,
+        get() {
+          if (this.classList.contains('content')) return 900
+
+          return readDescriptor(scrollHeightDescriptor, this)
+        },
+      })
+      Object.defineProperty(Element.prototype, 'clientHeight', {
+        configurable: true,
+        get() {
+          if (this.classList.contains('content')) return 500
+
+          return readDescriptor(clientHeightDescriptor, this)
+        },
+      })
+
+      wrapperMount(
+        <Modal open>
+          <Modal.Content>foo</Modal.Content>
+        </Modal>,
+      )
+
+      assertWithTimeout(
+        () => {
+          document
+            .querySelector('.ui.modal .content')
+            .classList.contains('scrolling')
+            .should.be.true()
+        },
+        (err) => {
+          if (err) {
+            restore()
+            done(err)
+            return
+          }
+
+          const content = document.querySelector('.ui.modal .content')
+          let removedScrolling = false
+          const observer = new MutationObserver(() => {
+            if (!content.classList.contains('scrolling')) removedScrolling = true
+          })
+          observer.observe(content, { attributeFilter: ['class'], attributes: true })
+
+          setTimeout(() => {
+            observer.disconnect()
+
+            try {
+              removedScrolling.should.equal(false)
+              content.classList.contains('scrolling').should.be.true()
+              restore()
+              done()
+            } catch (assertionErr) {
+              restore()
+              done(assertionErr)
+            }
+          }, 100)
+        },
       )
     })
   })

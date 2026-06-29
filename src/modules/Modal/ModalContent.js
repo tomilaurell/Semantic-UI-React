@@ -15,7 +15,7 @@ import {
  * A modal can contain content.
  */
 const ModalContent = React.forwardRef(function (props, ref) {
-  const { children, className, content, image, scrolling } = props
+  const { children, className, content, image, scrolling, style } = props
 
   const classes = cx(
     className,
@@ -27,7 +27,7 @@ const ModalContent = React.forwardRef(function (props, ref) {
   const ElementType = getComponentType(props)
 
   return (
-    <ElementType {...rest} className={classes} ref={ref}>
+    <ElementType {...rest} className={classes} ref={ref} style={{ overflow: 'auto', ...style }}>
       {childrenUtils.isNil(children) ? content : children}
     </ElementType>
   )
@@ -52,6 +52,9 @@ ModalContent.propTypes = {
 
   /** A modal can use the entire size of the screen. */
   scrolling: PropTypes.bool,
+
+  /** Custom styles. */
+  style: PropTypes.object,
 }
 
 ModalContent.create = createShorthandFactory(ModalContent, (content) => ({ content }))

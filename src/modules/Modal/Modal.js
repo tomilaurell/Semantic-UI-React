@@ -27,6 +27,58 @@ import ModalHeader from './ModalHeader'
 import { canFit, getLegacyStyles, isLegacy } from './utils'
 
 const debug = makeDebugger('modal')
+let bodyScrollLockCount = 0
+let bodyScrollLockOverflow = ''
+
+function lockBodyScroll() {
+  if (!isBrowser() || !document.body) {
+    return undefined
+  }
+
+  if (bodyScrollLockCount === 0) {
+    bodyScrollLockOverflow = document.body.style.overflow
+  }
+
+  bodyScrollLockCount += 1
+  document.body.style.overflow = 'hidden'
+
+  return () => {
+    bodyScrollLockCount = Math.max(0, bodyScrollLockCount - 1)
+
+    if (bodyScrollLockCount === 0) {
+      document.body.style.overflow = bodyScrollLockOverflow
+      bodyScrollLockOverflow = ''
+    }
+  }
+}
+
+function renderModalChildren(children, scrolling) {
+  return React.Children.map(children, (child) => {
+    if (!React.isValidElement(child)) {
+      return child
+    }
+
+    if (child.type === React.Fragment) {
+      return React.cloneElement(
+        child,
+        undefined,
+        renderModalChildren(child.props.children, scrolling),
+      )
+    }
+
+    if (scrolling && child.type === ModalContent && _.isNil(child.props.scrolling)) {
+      return React.cloneElement(child, { scrolling })
+    }
+
+    return child
+  })
+}
+
+function hasScrollableContent(modalNode) {
+  const scrollingContent = modalNode.querySelector('.scrolling.content')
+
+  return !!(scrollingContent && scrollingContent.scrollHeight > scrollingContent.clientHeight)
+}
 
 /**
  * A modal displays content that temporarily blocks interactions with the main view of a site.
@@ -77,6 +129,14 @@ const Modal = React.forwardRef(function (props, ref) {
     }
   }, [])
 
+  React.useEffect(() => {
+    if (!open) {
+      return undefined
+    }
+
+    return lockBodyScroll()
+  }, [open])
+
   // ----------------------------------------
   // Styles calc
   // ----------------------------------------
@@ -85,8 +145,9 @@ const Modal = React.forwardRef(function (props, ref) {
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect()
       const isFitted = canFit(rect)
+      const shouldScroll = !isFitted || hasScrollableContent(elementRef.current)
 
-      setScrolling(!isFitted)
+      setScrolling(shouldScroll)
 
       // Styles should be computed for IE11
       const computedLegacyStyles = legacy ? getLegacyStyles(isFitted, centered, rect) : {}
@@ -207,7 +268,10 @@ const Modal = React.forwardRef(function (props, ref) {
         {childrenUtils.isNil(children) ? (
           <>
             {ModalHeader.create(header, { autoGenerateKey: false })}
-            {ModalContent.create(content, { autoGenerateKey: false })}
+            {ModalContent.create(content, {
+              autoGenerateKey: false,
+              defaultProps: scrolling ? { scrolling } : undefined,
+            })}
             {ModalActions.create(actions, {
               overrideProps: (predefinedProps) => ({
                 onActionClick: (e, actionProps) => {
@@ -220,7 +284,7 @@ const Modal = React.forwardRef(function (props, ref) {
             })}
           </>
         ) : (
-          children
+          renderModalChildren(children, scrolling)
         )}
       </ElementType>
     )
