@@ -13,9 +13,9 @@ describe('ModalContent', () => {
   common.propKeyOnlyToClassName(ModalContent, 'image')
   common.propKeyOnlyToClassName(ModalContent, 'scrolling')
 
-  it('sets overflow auto by default', () => {
+  it('does not set overflow by default', () => {
     const wrapper = mount(<ModalContent />)
 
-    wrapper.getDOMNode().style.overflow.should.equal('auto')
+    wrapper.getDOMNode().style.overflow.should.equal('')
   })
 })
