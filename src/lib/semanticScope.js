@@ -9,22 +9,39 @@ function getNode(node) {
   return node && Object.prototype.hasOwnProperty.call(node, 'current') ? node.current : node
 }
 
+function getSemanticPortalHost(scope) {
+  let host = scope
+
+  while (host.parentElement && host.parentElement !== document.body) {
+    host = host.parentElement
+  }
+
+  return host
+}
+
 function getSemanticPortalRoot(scope, scopeClassName = semanticScopeClassName) {
   if (!scope?.parentNode) {
     return scope
   }
 
-  const existingPortalRoot = semanticPortalRoots?.get(scope)
+  const portalHost = getSemanticPortalHost(scope)
+  const portalParent = portalHost.parentNode
 
-  if (existingPortalRoot?.parentNode === scope.parentNode) {
+  if (!portalParent) {
+    return scope
+  }
+
+  const existingPortalRoot = semanticPortalRoots?.get(portalHost)
+
+  if (existingPortalRoot?.parentNode === portalParent) {
     return existingPortalRoot
   }
 
   const newPortalRoot = document.createElement('div')
   newPortalRoot.className = scopeClassName
   newPortalRoot.setAttribute(semanticPortalRootAttribute, 'true')
-  scope.parentNode.insertBefore(newPortalRoot, scope.nextSibling)
-  semanticPortalRoots?.set(scope, newPortalRoot)
+  portalParent.insertBefore(newPortalRoot, portalHost.nextSibling)
+  semanticPortalRoots?.set(portalHost, newPortalRoot)
 
   return newPortalRoot
 }

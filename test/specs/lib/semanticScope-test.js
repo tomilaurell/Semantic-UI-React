@@ -6,11 +6,15 @@ import {
 import isBrowser from 'src/lib/isBrowser'
 
 describe('semanticScope', () => {
+  let appRoot
   let outerScope
   let innerScope
   let target
 
   beforeEach(() => {
+    appRoot = document.createElement('div')
+    appRoot.id = 'root'
+
     outerScope = document.createElement('div')
     outerScope.className = 'semantic-scope'
 
@@ -22,11 +26,15 @@ describe('semanticScope', () => {
 
     innerScope.appendChild(target)
     outerScope.appendChild(innerScope)
-    document.body.appendChild(outerScope)
+    appRoot.appendChild(outerScope)
+    document.body.appendChild(appRoot)
   })
 
   afterEach(() => {
-    document.body.removeChild(outerScope)
+    document
+      .querySelectorAll('[data-suir-portal-root="true"]')
+      .forEach((portalRoot) => portalRoot.parentNode.removeChild(portalRoot))
+    document.body.removeChild(appRoot)
     isBrowser.override = null
   })
 
@@ -51,11 +59,13 @@ describe('semanticScope', () => {
     resolveSemanticMountNode(explicitMountNode, target).should.equal(explicitMountNode)
   })
 
-  it('resolves mountNode to a portal scope beside the closest semantic scope', () => {
+  it('resolves mountNode to a portal scope beside the app root that contains the closest semantic scope', () => {
     const mountNode = resolveSemanticMountNode(null, target)
 
     mountNode.should.not.equal(innerScope)
-    mountNode.parentNode.should.equal(outerScope)
+    mountNode.parentNode.should.equal(document.body)
+    appRoot.contains(mountNode).should.equal(false)
+    appRoot.nextSibling.should.equal(mountNode)
     mountNode.classList.contains('semantic-scope').should.equal(true)
     mountNode.dataset.suirPortalRoot.should.equal('true')
   })

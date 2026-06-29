@@ -502,6 +502,46 @@ describe('Modal', () => {
         }
       })
     })
+
+    it('renders modal and dimmer classes beside app root when semantic scope is nested inside it', (done) => {
+      const appRoot = document.createElement('div')
+      const scope = document.createElement('div')
+
+      appRoot.id = 'root'
+      scope.className = 'semantic-scope'
+      appRoot.appendChild(scope)
+      document.body.appendChild(appRoot)
+
+      wrapperMount(<Modal open>foo</Modal>, { attachTo: scope })
+
+      setTimeout(() => {
+        try {
+          const portalRoot = document.querySelector('[data-suir-portal-root="true"]')
+
+          portalRoot.should.not.equal(null)
+          portalRoot.parentNode.should.equal(document.body)
+          appRoot.contains(portalRoot).should.equal(false)
+          appRoot.nextSibling.should.equal(portalRoot)
+          assertNodeContains(portalRoot, '.ui.modal')
+          assertNodeContains(portalRoot, '.ui.dimmer')
+          portalRoot.classList.contains('dimmable').should.be.true()
+          portalRoot.classList.contains('dimmed').should.be.true()
+          appRoot.classList.contains('dimmable').should.be.false()
+          appRoot.classList.contains('dimmed').should.be.false()
+          scope.classList.contains('dimmable').should.be.false()
+          scope.classList.contains('dimmed').should.be.false()
+          document.body.classList.contains('dimmable').should.be.false()
+          document.body.classList.contains('dimmed').should.be.false()
+          done()
+        } catch (err) {
+          done(err)
+        } finally {
+          wrapper.unmount()
+          cleanupSemanticPortalRoots()
+          removeElement(appRoot)
+        }
+      })
+    })
   })
 
   describe('closeIcon', () => {

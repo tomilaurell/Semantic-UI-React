@@ -323,6 +323,42 @@ describe('Portal', () => {
       }
     })
 
+    it('mounts beside the app root when trigger scope is nested inside it', () => {
+      const appRoot = document.createElement('div')
+      const scope = document.createElement('div')
+
+      appRoot.id = 'root'
+      scope.className = 'semantic-scope'
+      appRoot.appendChild(scope)
+      document.body.appendChild(appRoot)
+
+      try {
+        wrapperMount(
+          <Portal trigger={<button>Open</button>}>
+            <p id='portal-content' />
+          </Portal>,
+          { attachTo: scope },
+        )
+
+        wrapper.find('button').simulate('click')
+
+        const portalRoot = document.querySelector('[data-suir-portal-root="true"]')
+        const content = portalRoot?.querySelector('#portal-content')
+
+        portalRoot.should.not.equal(null)
+        portalRoot.parentNode.should.equal(document.body)
+        appRoot.contains(portalRoot).should.equal(false)
+        appRoot.nextSibling.should.equal(portalRoot)
+        expect(appRoot.querySelector('#portal-content')).to.equal(null)
+        content.should.not.equal(null)
+        content.parentNode.should.equal(portalRoot)
+      } finally {
+        wrapper.unmount()
+        cleanupSemanticPortalRoots()
+        removeElement(appRoot)
+      }
+    })
+
     it('mounts inside a sibling semantic portal root from an anchor when trigger is absent', (done) => {
       const scope = document.createElement('div')
       scope.className = 'semantic-scope'
