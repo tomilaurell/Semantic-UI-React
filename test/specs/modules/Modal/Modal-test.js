@@ -70,7 +70,6 @@ describe('Modal', () => {
     autoGenerateKey: false,
     propKey: 'content',
     ShorthandComponent: ModalContent,
-    shorthandDefaultProps: { scrolling: true },
     mapValueToProps: (content) => ({ content }),
     rendersPortal: true,
     requiredProps: { open: true },
@@ -656,7 +655,7 @@ describe('Modal', () => {
       )
     })
 
-    it('makes direct Modal.Content children scrolling when taller than the window', (done) => {
+    it('does not make direct Modal.Content children scrolling automatically', (done) => {
       window.innerHeight = 10
 
       wrapperMount(
@@ -665,130 +664,21 @@ describe('Modal', () => {
         </Modal>,
       )
 
-      assertWithTimeout(() => {
+      requestAnimationFrame(() => {
+        wrapper.update()
+        wrapper.find('ModalDimmer').should.have.prop('scrolling', true)
         document
           .querySelector('.ui.modal .content')
           .classList.contains('scrolling')
-          .should.be.true()
-      }, done)
+          .should.be.false()
+        done()
+      })
     })
 
-    it('makes direct Modal.Content children scrolling on the first render', () => {
-      window.innerHeight = 10000
+    it('does not make shorthand Modal.Content scrolling by default', () => {
+      wrapperMount(<Modal open content='foo' />)
 
-      wrapperMount(
-        <Modal open>
-          <Modal.Content>foo</Modal.Content>
-        </Modal>,
-      )
-
-      document.querySelector('.ui.modal .content').classList.contains('scrolling').should.be.true()
-    })
-
-    it('keeps Modal.Content scrolling stable after content height caps the modal', (done) => {
-      window.innerHeight = 768
-
-      const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect
-      const scrollHeightDescriptor = Object.getOwnPropertyDescriptor(
-        Element.prototype,
-        'scrollHeight',
-      )
-      const clientHeightDescriptor = Object.getOwnPropertyDescriptor(
-        Element.prototype,
-        'clientHeight',
-      )
-
-      const readDescriptor = (descriptor, node) => {
-        if (!descriptor) return 0
-        if (descriptor.get) return descriptor.get.call(node)
-
-        return descriptor.value
-      }
-      const restore = () => {
-        Element.prototype.getBoundingClientRect = originalGetBoundingClientRect
-
-        if (scrollHeightDescriptor) {
-          Object.defineProperty(Element.prototype, 'scrollHeight', scrollHeightDescriptor)
-        } else {
-          delete Element.prototype.scrollHeight
-        }
-
-        if (clientHeightDescriptor) {
-          Object.defineProperty(Element.prototype, 'clientHeight', clientHeightDescriptor)
-        } else {
-          delete Element.prototype.clientHeight
-        }
-      }
-
-      Element.prototype.getBoundingClientRect = function () {
-        if (this.classList.contains('ui') && this.classList.contains('modal')) {
-          const content = this.querySelector('.content')
-          const height = content && content.classList.contains('scrolling') ? 600 : 900
-
-          return { bottom: height, height, left: 0, right: 900, top: 0, width: 900 }
-        }
-
-        return originalGetBoundingClientRect.call(this)
-      }
-      Object.defineProperty(Element.prototype, 'scrollHeight', {
-        configurable: true,
-        get() {
-          if (this.classList.contains('content')) return 900
-
-          return readDescriptor(scrollHeightDescriptor, this)
-        },
-      })
-      Object.defineProperty(Element.prototype, 'clientHeight', {
-        configurable: true,
-        get() {
-          if (this.classList.contains('content')) return 500
-
-          return readDescriptor(clientHeightDescriptor, this)
-        },
-      })
-
-      wrapperMount(
-        <Modal open>
-          <Modal.Content>foo</Modal.Content>
-        </Modal>,
-      )
-
-      assertWithTimeout(
-        () => {
-          document
-            .querySelector('.ui.modal .content')
-            .classList.contains('scrolling')
-            .should.be.true()
-        },
-        (err) => {
-          if (err) {
-            restore()
-            done(err)
-            return
-          }
-
-          const content = document.querySelector('.ui.modal .content')
-          let removedScrolling = false
-          const observer = new MutationObserver(() => {
-            if (!content.classList.contains('scrolling')) removedScrolling = true
-          })
-          observer.observe(content, { attributeFilter: ['class'], attributes: true })
-
-          setTimeout(() => {
-            observer.disconnect()
-
-            try {
-              removedScrolling.should.equal(false)
-              content.classList.contains('scrolling').should.be.true()
-              restore()
-              done()
-            } catch (assertionErr) {
-              restore()
-              done(assertionErr)
-            }
-          }, 100)
-        },
-      )
+      document.querySelector('.ui.modal .content').classList.contains('scrolling').should.be.false()
     })
   })
 

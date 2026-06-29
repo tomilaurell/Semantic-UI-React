@@ -52,24 +52,6 @@ function lockBodyScroll() {
   }
 }
 
-function renderModalChildren(children) {
-  return React.Children.map(children, (child) => {
-    if (!React.isValidElement(child)) {
-      return child
-    }
-
-    if (child.type === React.Fragment) {
-      return React.cloneElement(child, undefined, renderModalChildren(child.props.children))
-    }
-
-    if (child.type === ModalContent && _.isNil(child.props.scrolling)) {
-      return React.cloneElement(child, { scrolling: true })
-    }
-
-    return child
-  })
-}
-
 /**
  * A modal displays content that temporarily blocks interactions with the main view of a site.
  * @see Confirm
@@ -257,10 +239,7 @@ const Modal = React.forwardRef(function (props, ref) {
         {childrenUtils.isNil(children) ? (
           <>
             {ModalHeader.create(header, { autoGenerateKey: false })}
-            {ModalContent.create(content, {
-              autoGenerateKey: false,
-              defaultProps: { scrolling: true },
-            })}
+            {ModalContent.create(content, { autoGenerateKey: false })}
             {ModalActions.create(actions, {
               overrideProps: (predefinedProps) => ({
                 onActionClick: (e, actionProps) => {
@@ -273,7 +252,7 @@ const Modal = React.forwardRef(function (props, ref) {
             })}
           </>
         ) : (
-          renderModalChildren(children)
+          children
         )}
       </ElementType>
     )

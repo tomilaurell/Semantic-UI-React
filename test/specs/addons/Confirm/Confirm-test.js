@@ -41,7 +41,6 @@ describe('Confirm', () => {
     autoGenerateKey: false,
     propKey: 'content',
     ShorthandComponent: Modal.Content,
-    shorthandDefaultProps: { scrolling: true },
     rendersPortal: true,
     mapValueToProps: (content) => ({ content }),
     requiredProps: { open: true },
