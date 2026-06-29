@@ -29,18 +29,6 @@ let wrapper
 const wrapperMount = (...args) => (wrapper = mount(...args))
 const wrapperShallow = (...args) => (wrapper = shallow(...args))
 
-const removeElement = (element) => {
-  if (element?.parentNode) {
-    element.parentNode.removeChild(element)
-  }
-}
-
-const cleanupSemanticPortalRoots = () => {
-  document
-    .querySelectorAll('[data-suir-portal-root="true"]')
-    .forEach((portalRoot) => removeElement(portalRoot))
-}
-
 describe('Modal', () => {
   beforeEach(() => {
     if (wrapper && wrapper.unmount) {
@@ -56,7 +44,6 @@ describe('Modal', () => {
 
     if (dimmer) dimmer.parentNode.removeChild(dimmer)
     if (modal) modal.parentNode.removeChild(modal)
-    cleanupSemanticPortalRoots()
     document.body.classList.remove('dimmable', 'dimmed', 'blurring', 'scrolling')
   })
 
@@ -469,7 +456,7 @@ describe('Modal', () => {
       assertNodeContains(mountNode, '.ui.modal')
     })
 
-    it('renders modal and dimmer classes inside sibling semantic portal root by default', (done) => {
+    it('renders modal and dimmer classes inside nearest semantic scope by default', (done) => {
       const scope = document.createElement('div')
       scope.className = 'semantic-scope'
       document.body.appendChild(scope)
@@ -478,18 +465,10 @@ describe('Modal', () => {
 
       setTimeout(() => {
         try {
-          const portalRoot = document.querySelector('[data-suir-portal-root="true"]')
-
-          portalRoot.should.not.equal(null)
-          portalRoot.should.not.equal(scope)
-          portalRoot.parentNode.should.equal(document.body)
-          portalRoot.classList.contains('semantic-scope').should.be.true()
-          assertNodeContains(portalRoot, '.ui.modal')
-          assertNodeContains(portalRoot, '.ui.dimmer')
-          portalRoot.classList.contains('dimmable').should.be.true()
-          portalRoot.classList.contains('dimmed').should.be.true()
-          scope.classList.contains('dimmable').should.be.false()
-          scope.classList.contains('dimmed').should.be.false()
+          assertNodeContains(scope, '.ui.modal')
+          assertNodeContains(scope, '.ui.dimmer')
+          scope.classList.contains('dimmable').should.be.true()
+          scope.classList.contains('dimmed').should.be.true()
           document.body.classList.contains('dimmable').should.be.false()
           document.body.classList.contains('dimmed').should.be.false()
           done()
@@ -497,48 +476,7 @@ describe('Modal', () => {
           done(err)
         } finally {
           wrapper.unmount()
-          cleanupSemanticPortalRoots()
-          removeElement(scope)
-        }
-      })
-    })
-
-    it('renders modal and dimmer classes beside app root when semantic scope is nested inside it', (done) => {
-      const appRoot = document.createElement('div')
-      const scope = document.createElement('div')
-
-      appRoot.id = 'root'
-      scope.className = 'semantic-scope'
-      appRoot.appendChild(scope)
-      document.body.appendChild(appRoot)
-
-      wrapperMount(<Modal open>foo</Modal>, { attachTo: scope })
-
-      setTimeout(() => {
-        try {
-          const portalRoot = document.querySelector('[data-suir-portal-root="true"]')
-
-          portalRoot.should.not.equal(null)
-          portalRoot.parentNode.should.equal(document.body)
-          appRoot.contains(portalRoot).should.equal(false)
-          appRoot.nextSibling.should.equal(portalRoot)
-          assertNodeContains(portalRoot, '.ui.modal')
-          assertNodeContains(portalRoot, '.ui.dimmer')
-          portalRoot.classList.contains('dimmable').should.be.true()
-          portalRoot.classList.contains('dimmed').should.be.true()
-          appRoot.classList.contains('dimmable').should.be.false()
-          appRoot.classList.contains('dimmed').should.be.false()
-          scope.classList.contains('dimmable').should.be.false()
-          scope.classList.contains('dimmed').should.be.false()
-          document.body.classList.contains('dimmable').should.be.false()
-          document.body.classList.contains('dimmed').should.be.false()
-          done()
-        } catch (err) {
-          done(err)
-        } finally {
-          wrapper.unmount()
-          cleanupSemanticPortalRoots()
-          removeElement(appRoot)
+          document.body.removeChild(scope)
         }
       })
     })
