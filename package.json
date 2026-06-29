@@ -1,6 +1,6 @@
 {
   "name": "semantic-ui-react-19",
-  "version": "3.0.0-react19-alpha.5",
+  "version": "3.0.0-react19-alpha.6",
   "description": "Semantic UI React compatibility fork for React 19 and scoped CSS.",
   "jsnext:main": "dist/es/index.js",
   "main": "dist/commonjs/index.js",

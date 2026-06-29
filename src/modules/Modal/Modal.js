@@ -52,32 +52,22 @@ function lockBodyScroll() {
   }
 }
 
-function renderModalChildren(children, scrolling) {
+function renderModalChildren(children) {
   return React.Children.map(children, (child) => {
     if (!React.isValidElement(child)) {
       return child
     }
 
     if (child.type === React.Fragment) {
-      return React.cloneElement(
-        child,
-        undefined,
-        renderModalChildren(child.props.children, scrolling),
-      )
+      return React.cloneElement(child, undefined, renderModalChildren(child.props.children))
     }
 
-    if (scrolling && child.type === ModalContent && _.isNil(child.props.scrolling)) {
-      return React.cloneElement(child, { scrolling })
+    if (child.type === ModalContent && _.isNil(child.props.scrolling)) {
+      return React.cloneElement(child, { scrolling: true })
     }
 
     return child
   })
-}
-
-function hasScrollableContent(modalNode) {
-  const scrollingContent = modalNode.querySelector('.scrolling.content')
-
-  return !!(scrollingContent && scrollingContent.scrollHeight > scrollingContent.clientHeight)
 }
 
 /**
@@ -145,9 +135,8 @@ const Modal = React.forwardRef(function (props, ref) {
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect()
       const isFitted = canFit(rect)
-      const shouldScroll = !isFitted || hasScrollableContent(elementRef.current)
 
-      setScrolling(shouldScroll)
+      setScrolling(!isFitted)
 
       // Styles should be computed for IE11
       const computedLegacyStyles = legacy ? getLegacyStyles(isFitted, centered, rect) : {}
@@ -270,7 +259,7 @@ const Modal = React.forwardRef(function (props, ref) {
             {ModalHeader.create(header, { autoGenerateKey: false })}
             {ModalContent.create(content, {
               autoGenerateKey: false,
-              defaultProps: scrolling ? { scrolling } : undefined,
+              defaultProps: { scrolling: true },
             })}
             {ModalActions.create(actions, {
               overrideProps: (predefinedProps) => ({
@@ -284,7 +273,7 @@ const Modal = React.forwardRef(function (props, ref) {
             })}
           </>
         ) : (
-          renderModalChildren(children, scrolling)
+          renderModalChildren(children)
         )}
       </ElementType>
     )

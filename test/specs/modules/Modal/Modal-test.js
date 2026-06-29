@@ -70,6 +70,7 @@ describe('Modal', () => {
     autoGenerateKey: false,
     propKey: 'content',
     ShorthandComponent: ModalContent,
+    shorthandDefaultProps: { scrolling: true },
     mapValueToProps: (content) => ({ content }),
     rendersPortal: true,
     requiredProps: { open: true },
@@ -670,6 +671,18 @@ describe('Modal', () => {
           .classList.contains('scrolling')
           .should.be.true()
       }, done)
+    })
+
+    it('makes direct Modal.Content children scrolling on the first render', () => {
+      window.innerHeight = 10000
+
+      wrapperMount(
+        <Modal open>
+          <Modal.Content>foo</Modal.Content>
+        </Modal>,
+      )
+
+      document.querySelector('.ui.modal .content').classList.contains('scrolling').should.be.true()
     })
 
     it('keeps Modal.Content scrolling stable after content height caps the modal', (done) => {
