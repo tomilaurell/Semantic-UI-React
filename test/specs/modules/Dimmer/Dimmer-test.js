@@ -6,6 +6,18 @@ import DimmerDimmable from 'src/modules/Dimmer/DimmerDimmable'
 import DimmerInner from 'src/modules/Dimmer/DimmerInner'
 import * as common from 'test/specs/commonTests'
 
+const removeElement = (element) => {
+  if (element?.parentNode) {
+    element.parentNode.removeChild(element)
+  }
+}
+
+const cleanupSemanticPortalRoots = () => {
+  document
+    .querySelectorAll('[data-suir-portal-root="true"]')
+    .forEach((portalRoot) => removeElement(portalRoot))
+}
+
 describe('Dimmer', () => {
   common.isConformant(Dimmer)
   common.forwardsRef(Dimmer)
@@ -31,6 +43,7 @@ describe('Dimmer', () => {
     describe('active', () => {
       beforeEach(() => {
         document.body.classList.remove('dimmable', 'dimmed')
+        cleanupSemanticPortalRoots()
       })
 
       it('when true, Portal is opened dimmer classes are present on body', () => {
@@ -63,7 +76,7 @@ describe('Dimmer', () => {
         classes.contains('dimmed').should.be.false()
       })
 
-      it('when mounted in semantic scope, dimmer classes are scoped', (done) => {
+      it('when mounted in semantic scope, dimmer classes are placed on sibling portal root', (done) => {
         const scope = document.createElement('div')
         scope.className = 'semantic-scope'
         document.body.appendChild(scope)
@@ -74,17 +87,27 @@ describe('Dimmer', () => {
           try {
             dimmer.find(Portal).should.have.prop('open', true)
 
-            scope.classList.contains('dimmable').should.be.true()
-            scope.classList.contains('dimmed').should.be.true()
+            const portalRoot = document.querySelector('[data-suir-portal-root="true"]')
+
+            portalRoot.should.not.equal(null)
+            portalRoot.should.not.equal(scope)
+            portalRoot.parentNode.should.equal(document.body)
+            portalRoot.classList.contains('semantic-scope').should.be.true()
+            portalRoot.classList.contains('dimmable').should.be.true()
+            portalRoot.classList.contains('dimmed').should.be.true()
+            scope.classList.contains('dimmable').should.be.false()
+            scope.classList.contains('dimmed').should.be.false()
             document.body.classList.contains('dimmable').should.be.false()
             document.body.classList.contains('dimmed').should.be.false()
-            scope.querySelector('.ui.dimmer').should.not.equal(null)
+            expect(scope.querySelector('.ui.dimmer')).to.equal(null)
+            portalRoot.querySelector('.ui.dimmer').should.not.equal(null)
             done()
           } catch (err) {
             done(err)
           } finally {
             dimmer.unmount()
-            document.body.removeChild(scope)
+            cleanupSemanticPortalRoots()
+            removeElement(scope)
           }
         })
       })

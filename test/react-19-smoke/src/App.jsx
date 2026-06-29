@@ -14,7 +14,7 @@ import {
   Segment,
   Sidebar,
   Transition,
-} from 'semantic-ui-react'
+} from 'semantic-ui-react-19'
 
 const options = [
   { key: 'alpha', text: 'Alpha', value: 'alpha' },

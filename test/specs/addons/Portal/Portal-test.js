@@ -26,6 +26,18 @@ const wrapperMount = (node, opts) => {
   return wrapper
 }
 
+const removeElement = (element) => {
+  if (element?.parentNode) {
+    element.parentNode.removeChild(element)
+  }
+}
+
+const cleanupSemanticPortalRoots = () => {
+  document
+    .querySelectorAll('[data-suir-portal-root="true"]')
+    .forEach((portalRoot) => removeElement(portalRoot))
+}
+
 describe('Portal', () => {
   afterEach(() => {
     if (wrapper && wrapper.unmount) {
@@ -34,6 +46,8 @@ describe('Portal', () => {
         // eslint-disable-next-line no-empty
       } catch (e) {}
     }
+
+    cleanupSemanticPortalRoots()
   })
 
   common.hasSubcomponents(Portal, [PortalInner])
@@ -277,30 +291,39 @@ describe('Portal', () => {
       wrapper.find(PortalInner).should.have.prop('mountNode', mountNode)
     })
 
-    it('mounts inside the nearest semantic scope from trigger by default', () => {
+    it('mounts inside a sibling semantic portal root from trigger by default', () => {
       const scope = document.createElement('div')
       scope.className = 'semantic-scope'
       document.body.appendChild(scope)
 
-      wrapperMount(
-        <Portal trigger={<button>Open</button>}>
-          <p id='portal-content' />
-        </Portal>,
-        { attachTo: scope },
-      )
+      try {
+        wrapperMount(
+          <Portal trigger={<button>Open</button>}>
+            <p id='portal-content' />
+          </Portal>,
+          { attachTo: scope },
+        )
 
-      wrapper.find('button').simulate('click')
+        wrapper.find('button').simulate('click')
 
-      const content = scope.querySelector('#portal-content')
+        const portalRoot = document.querySelector('[data-suir-portal-root="true"]')
+        const content = portalRoot?.querySelector('#portal-content')
 
-      content.should.not.equal(null)
-      content.parentNode.should.equal(scope)
-
-      wrapper.unmount()
-      document.body.removeChild(scope)
+        portalRoot.should.not.equal(null)
+        portalRoot.should.not.equal(scope)
+        portalRoot.parentNode.should.equal(document.body)
+        portalRoot.classList.contains('semantic-scope').should.equal(true)
+        expect(scope.querySelector('#portal-content')).to.equal(null)
+        content.should.not.equal(null)
+        content.parentNode.should.equal(portalRoot)
+      } finally {
+        wrapper.unmount()
+        cleanupSemanticPortalRoots()
+        removeElement(scope)
+      }
     })
 
-    it('mounts inside the nearest semantic scope from an anchor when trigger is absent', (done) => {
+    it('mounts inside a sibling semantic portal root from an anchor when trigger is absent', (done) => {
       const scope = document.createElement('div')
       scope.className = 'semantic-scope'
       document.body.appendChild(scope)
@@ -314,16 +337,23 @@ describe('Portal', () => {
 
       setTimeout(() => {
         try {
-          const content = scope.querySelector('#anchored-portal-content')
+          const portalRoot = document.querySelector('[data-suir-portal-root="true"]')
+          const content = portalRoot?.querySelector('#anchored-portal-content')
 
+          portalRoot.should.not.equal(null)
+          portalRoot.should.not.equal(scope)
+          portalRoot.parentNode.should.equal(document.body)
+          portalRoot.classList.contains('semantic-scope').should.equal(true)
+          expect(scope.querySelector('#anchored-portal-content')).to.equal(null)
           content.should.not.equal(null)
-          content.parentNode.should.equal(scope)
+          content.parentNode.should.equal(portalRoot)
           done()
         } catch (err) {
           done(err)
         } finally {
           wrapper.unmount()
-          document.body.removeChild(scope)
+          cleanupSemanticPortalRoots()
+          removeElement(scope)
         }
       })
     })

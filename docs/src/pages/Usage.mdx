@@ -54,8 +54,13 @@ export default function App() {
 ```
 
 When scoped CSS is used, components that render through portals, such as `Portal`, `Modal`,
-`Popup`, and page `Dimmer`, mount within the nearest `.semantic-scope` by default. An explicit
-`mountNode` still takes precedence.
+`Popup`, and page `Dimmer`, create and reuse a sibling `.semantic-scope` portal root next to the
+nearest `.semantic-scope` by default. An explicit `mountNode` still takes precedence.
+
+```html fitted label=DOM
+<div id="root" class="semantic-scope"></div>
+<div class="semantic-scope" data-suir-portal-root="true"></div>
+```
 
 Do not import both `semantic-ui-css/semantic.min.css` and
 `semantic-ui-react/dist/css/semantic-ui-scoped.min.css` unless global Semantic UI styles are

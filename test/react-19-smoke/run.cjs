@@ -139,11 +139,21 @@ async function main() {
     const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
     const page = await browser.newPage()
     const consoleMessages = []
+    const failedResponses = []
     const pageErrors = []
 
     page.on('console', (message) => {
       if (message.type() === 'warning' || message.type() === 'error') {
+        if (message.text() === 'Failed to load resource: the server responded with a status of 404 (Not Found)') {
+          return
+        }
+
         consoleMessages.push(`${message.type()}: ${message.text()}`)
+      }
+    })
+    page.on('response', (response) => {
+      if (response.status() >= 400 && !response.url().endsWith('/favicon.ico')) {
+        failedResponses.push(`${response.status()}: ${response.url()}`)
       }
     })
     page.on('pageerror', (error) => pageErrors.push(error.stack || error.message))
@@ -161,6 +171,7 @@ async function main() {
       ...(smokeResult?.messages || []),
       ...(smokeResult?.error ? [smokeResult.error] : []),
       ...consoleMessages,
+      ...failedResponses,
       ...pageErrors,
     ]
 

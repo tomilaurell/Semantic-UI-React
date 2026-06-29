@@ -49,8 +49,9 @@ Main changes in this fork:
 - A generated scoped CSS artifact is available at
   `semantic-ui-react-19/dist/css/semantic-ui-scoped.min.css`.
 - Semantic UI React content can be isolated by wrapping it in `.semantic-scope`.
-- Portal-based components, including Modal, Popup through Portal, and page Dimmer behavior, resolve
-  to the nearest `.semantic-scope` by default unless an explicit `mountNode` is provided.
+- Portal-based components, including Modal, Popup through Portal, and page Dimmer behavior, create
+  and reuse a sibling `.semantic-scope` portal root next to the nearest `.semantic-scope` by default
+  unless an explicit `mountNode` is provided.
 
 Install the scoped package directly:
 
@@ -78,6 +79,13 @@ import 'semantic-ui-react-19/dist/css/semantic-ui-scoped.min.css'
 <div className="semantic-scope">
   <AppUsingSemanticUIReact />
 </div>
+```
+
+Portal-based components render into a generated sibling portal root:
+
+```html
+<div id="root" class="semantic-scope"></div>
+<div class="semantic-scope" data-suir-portal-root="true"></div>
 ```
 
 Do not import `semantic-ui-css/semantic.min.css` together with the scoped stylesheet unless global
@@ -123,7 +131,7 @@ This is a listing of example projects and guides that will help you integrate Se
 
 There are several options. Refer to our doc on [CSS Usage][23].
 
-For mixed-style apps, import `semantic-ui-react/dist/css/semantic-ui-scoped.min.css` and wrap
+For mixed-style apps, import `semantic-ui-react-19/dist/css/semantic-ui-scoped.min.css` and wrap
 Semantic UI React content in `.semantic-scope`. Do not load the scoped stylesheet together with the
 global `semantic-ui-css/semantic.min.css` unless global Semantic UI styles are intentional.
 

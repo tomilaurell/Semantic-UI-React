@@ -51,8 +51,13 @@ describe('semanticScope', () => {
     resolveSemanticMountNode(explicitMountNode, target).should.equal(explicitMountNode)
   })
 
-  it('resolves mountNode to the closest semantic scope', () => {
-    resolveSemanticMountNode(null, target).should.equal(innerScope)
+  it('resolves mountNode to a portal scope beside the closest semantic scope', () => {
+    const mountNode = resolveSemanticMountNode(null, target)
+
+    mountNode.should.not.equal(innerScope)
+    mountNode.parentNode.should.equal(outerScope)
+    mountNode.classList.contains('semantic-scope').should.equal(true)
+    mountNode.dataset.suirPortalRoot.should.equal('true')
   })
 
   it('falls back to document.body when no semantic scope exists', () => {
